@@ -9,6 +9,7 @@ from geometry_msgs.msg import Twist
 
 import time
 
+
 def ir_callback(data):
 
 
@@ -25,6 +26,9 @@ def ir_callback(data):
     twist.angular.z = 0. 
 
     # write your code here
+    global averageTime
+    global rawTime
+    global oneLoopTime
     twist.linear.x = 0.4
     mixed_data = bin(data.data)
     big_sensor = int(mixed_data[-16:], 2)
@@ -32,19 +36,19 @@ def ir_callback(data):
     if small_sensor >= 600:
         userTime = time.time()
         if (userTime - rawTime[-1]) >= averageTime/2:
-            if (userTime - rawTime[-1]) <= averageTime*3/4
-                if big_sonser >= 400:
-                    twist.liner.x = 0.2
-                    twist.angular.z = big_sonser/720
+            if (userTime - rawTime[-1]) <= averageTime*3/4:
+                if big_sensor >= 450:
+                    twist.linear.x = 0.2
+                    twist.angular.z = big_sensor/600
             else:
-                if big_sonser >= 400:
-                    twist.liner.x = 0.2
-                    twist.angular.z = -big_sonser/720
+                if big_sensor >= 450:
+                    twist.linear.x = 0.2
+                    twist.angular.z = -big_sensor/600
+                    print(big_sensor)
     else:
-        one_time = time.time()
-        sub = one_time - rawTime[-1]
-        if sub > 0.2:
-            rawTime.append(one_time())
+        sub = time.time() - rawTime[-1]
+        if sub > 0.1:
+            rawTime.append(sub + rawTime[-1])
             oneLoopTime.append(sub)
             averageTime = sum(oneLoopTime)/len(oneLoopTime)
 
@@ -66,7 +70,7 @@ def range_controller():
     kobuki_velocity_pub = rospy.Publisher('/mobile_base/commands/velocity', Twist, queue_size=10)
     
     #rospy.init_node('laser_scan_publisher')
-    scan_pub = rospy.Publisher('scan', LaserScan, queue_size = 50)
+    #scan_pub = rospy.Publisher('scan', LaserScan, queue_size = 50)
     # subscribe to the topic '/ir_data' of message type Int32. The function 'ir_callback' will be called
     # every time a new message is received - the parameter passed to the function is the message
     rospy.Subscriber("/ir_data", Int32, ir_callback)
@@ -76,9 +80,9 @@ def range_controller():
 
 # start the line follow
 if __name__ == '__main__':
-    rawTime = [ ]
-    oneLoopTime = [ ]
-    averageTime = sum(oneLoopTime)/len(OneLoopTime)
+    rawTime = []
+    oneLoopTime = [0.78]
+    averageTime = sum(oneLoopTime)/len(oneLoopTime)
     rawTime.append(time.time())
     range_controller()
     
