@@ -86,25 +86,9 @@ def ir_callback(data):
                     if len(distanceList) == 0:
                         exit("Error scan right,distanceList used before assignment")
                     #elif twist.angular.z >=  0.1:
-                    elif big_sensor >= 300:# this value is charged by sensor.
+                    if big_sensor >= 300:# this value is charged by sensor.
                         twist.linear.x = 0.1
-                        if big_sensor >= 320:
-                            twist.angular.z = 0.7 + 0.008*(big_sensor - averageDis) + 0.002*abs(big_sensor-sum(fivePoint)/len(fivePoint))
-                        #print twist.angular.z, " tw"
-                        elif big_sensor >= 340:
-                            twist.angular.z = 0.76 + 0.008*(big_sensor - averageDis) + 0.002*abs(big_sensor-sum(fivePoint)/len(fivePoint))
-                        #print twist.angular.z, " tw"
-                        elif big_sensor >= 360:
-                            twist.angular.z = 0.8 + 0.008*(big_sensor - averageDis) + 0.002*abs(big_sensor-sum(fivePoint)/len(fivePoint))
-                        #print twist.angular.z, " tw"
-                        elif big_sensor >= 400:
-                            twist.angular.z = 0.9 + 0.012*(big_sensor - averageDis) + 0.004*abs(big_sensor-sum(fivePoint)/len(fivePoint))
-                        #print twist.angular.z, " tw"
-
-                    #print twist.angular.z
-
-                    else:
-                        pass
+                        twist.angular.z = big_sensor/380 + 0.008*(big_sensor - averageDis) + 0.002*abs(sum(fivePoint)/len(fivePoint))
                 #left side of the front
                 else:
                     leftDistance.append(big_sensor)
@@ -115,30 +99,17 @@ def ir_callback(data):
                     if len(distanceList) == 0:
                         exit("Error scan right,distanceList used before assignment")
                     #elif twist.angular.z <= -0.1:
-                    elif big_sensor >= 300:
+                    if big_sensor >= 300:
                         twist.linear.x = 0.1
-                        if big_sensor >= 320:
-                            twist.angular.z = -0.7 - 0.008*(big_sensor - averageDis)  - 0.002*abs(big_sensor-sum(fivePoint)/len(fivePoint))
-                        #print twist.angular.z, " tw"
-                        elif big_sensor >= 340:
-                            twist.angular.z = -0.76 - 0.008*(big_sensor - averageDis) - 0.002*abs(big_sensor-sum(fivePoint)/len(fivePoint))
-                        #print twist.angular.z, " tw"
-                        elif big_sensor >= 360:
-                            twist.angular.z = -0.8 - 0.008*(big_sensor - averageDis) - 0.002*abs(big_sensor-sum(fivePoint)/len(fivePoint))
-                        #print twist.angular.z, " tw"
-                        elif big_sensor >= 400:
-                            twist.angular.z = -0.9 - 0.012*(big_sensor - averageDis) - 0.004*abs(big_sensor-sum(fivePoint)/len(fivePoint))
-                        #print twist.angular.z, " tw"
-                    else:
-                        pass
+                        twist.angular.z = -big_sensor/380 - 0.008*(big_sensor - averageDis)  - 0.002*abs(sum(fivePoint)/len(fivePoint))
                 allSub = sum(rightDistance) -sum(leftDistance)
-                if len(rawTime) > 2:
-                    if allSub > 10000:
+                if len(rawTime) > 3:
+                    if allSub > 11000:
                         twist.linear.x = 0.05
-                        twist.angular.z = 0.8*allSub/10000
-                    elif -allSub > 10000:
+                        twist.angular.z = 0.4*allSub/10000
+                    elif -allSub > 11000:
                         twist.linear.x = 0.05
-                        twist.angular.z = 0.8*allSub/10000
+                        twist.angular.z = 0.4*allSub/10000
                     else:
                         pass
         else:
