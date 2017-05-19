@@ -53,7 +53,7 @@ def ir_callback(data):
     scan.intensities = [999]
 
     if state == 0:
-        twist.linear.x = 0.18
+        twist.linear.x = 0.2
         twist.angular.z = 0.0
         mixed_data = bin(data.data)
         small_sensor = int(mixed_data[-16:], 2)
@@ -79,37 +79,39 @@ def ir_callback(data):
                 if (userTime - rawTime[-1]) <= averageTime*3/4:
                     rightDistance.append(big_sensor)
                     averageDis = sum(rightDistance)/len(rightDistance)
-                    twist.linear.x = 0.18
+                    twist.linear.x = 0.2
                     twist.angular.z = 0
                     #twist.angular.z = 0.01*(big_sensor - sum(fivePoint)/5)
                     #print twist.angular.z, " re "
                     if len(distanceList) == 0:
                         exit("Error scan right,distanceList used before assignment")
                     #elif twist.angular.z >=  0.1:
-                    if big_sensor >= 300:# this value is charged by sensor.
-                        twist.linear.x = 0.1
-                        twist.angular.z = big_sensor/380 + 0.008*(big_sensor - averageDis) + 0.002*abs(sum(fivePoint)/len(fivePoint))
+                    if big_sensor >= 310:# this value is charged by sensor.
+                        twist.linear.x = 0.08
+                        twist.angular.z = big_sensor/310 + 0.006*(big_sensor - averageDis) + 0.01*abs(big_sensor-sum(fivePoint)/len(fivePoint))
                 #left side of the front
                 else:
                     leftDistance.append(big_sensor)
                     averageDis = sum(leftDistance)/len(leftDistance)
-                    twist.linear.x = 0.18
+                    twist.linear.x = 0.2
                     twist.angular.z =0
                     #twist.angular.z = -0.01*(big_sensor - sum(fivePoint)/5)
                     if len(distanceList) == 0:
                         exit("Error scan right,distanceList used before assignment")
                     #elif twist.angular.z <= -0.1:
-                    if big_sensor >= 300:
-                        twist.linear.x = 0.1
-                        twist.angular.z = -big_sensor/380 - 0.008*(big_sensor - averageDis)  - 0.002*abs(sum(fivePoint)/len(fivePoint))
+                    if big_sensor >= 290:
+                        twist.linear.x = 0.08
+                        twist.angular.z = -big_sensor/330 - 0.002*(big_sensor - averageDis)  - 0.01*abs(big_sensor-sum(fivePoint)/len(fivePoint))
                 allSub = sum(rightDistance) -sum(leftDistance)
-                if len(rawTime) > 3:
-                    if allSub > 11000:
+                if len(rawTime) > 4:
+                    if allSub > 26500:
+                        print "zzz"
                         twist.linear.x = 0.05
-                        twist.angular.z = 0.4*allSub/10000
-                    elif -allSub > 11000:
+                        twist.angular.z = 2.4*allSub/15000
+                    elif -allSub > 26500:
+                        print "zzzz"
                         twist.linear.x = 0.05
-                        twist.angular.z = 0.4*allSub/10000
+                        twist.angular.z = 2.4*allSub/15000
                     else:
                         pass
         else:
@@ -127,6 +129,7 @@ def ir_callback(data):
                 counter = 0
                 #print "one loop", sub, small_sensor
                 fivePoint = [ ]
+                twist.angular.z = 0.
 
         #print twist.angular.z, big_sensor
         #print ranges
