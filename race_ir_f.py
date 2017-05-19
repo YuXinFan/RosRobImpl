@@ -39,6 +39,7 @@ def ir_callback(data):
     global scan
     global ranges
     global counter
+    global sumTopDis
     current_time = rospy.Time.now()
     scan = LaserScan()
     scan.header.stamp = current_time
@@ -76,44 +77,67 @@ def ir_callback(data):
                 else:
                     pass
                 #right side at the front
-                if (userTime - rawTime[-1]) <= averageTime*3/4:
+                if (userTime - rawTime[-1]) <= averageTime*5/12:
                     rightDistance.append(big_sensor)
                     averageDis = sum(rightDistance)/len(rightDistance)
                     twist.linear.x = 0.2
                     twist.angular.z = 0
                     #twist.angular.z = 0.01*(big_sensor - sum(fivePoint)/5)
-                    #print twist.angular.z, " re "
-                    if len(distanceList) == 0:
-                        exit("Error scan right,distanceList used before assignment")
+                
                     #elif twist.angular.z >=  0.1:
                     if big_sensor >= 310:# this value is charged by sensor.
-                        twist.linear.x = 0.08
+                        twist.linear.x = 0.0
                         twist.angular.z = big_sensor/310 + 0.006*(big_sensor - averageDis) + 0.01*abs(big_sensor-sum(fivePoint)/len(fivePoint))
                 #left side of the front
+                elif averageTime*5.00/12.00 <(userTime - rawTime[-1]) and (userTime - rawTime[-1])< averageTime * 6.0/12.00:
+                    sumTopDis.append(big_sensor)
+                    rightDistance.append(big_sensor)
+                    averageDis = sum(rightDistance)/len(rightDistance)
+                    twist.linear.x = 0.2
+                    twist.angular.z = 0
+                    #twist.angular.z = 0.01*(big_sensor - sum(fivePoint)/5)
+                
+                    #elif twist.angular.z >=  0.1:
+                    if big_sensor >= 310:# this value is charged by sensor.
+                        twist.linear.x = 0.0
+                        twist.angular.z = big_sensor/310 + 0.006*(big_sensor - averageDis) + 0.01*abs(big_sensor-sum(fivePoint)/len(fivePoint))
+                #left side of the front
+                elif averageTime*6.00/12.00 <(userTime - rawTime[-1]) and (userTime - rawTime[-1])< averageTime * 7.0/12.00:
+                    sumTopDis.append(big_sensor)
+                    leftDistance.append(big_sensor)
+                    averageDis = sum(leftDistance)/len(leftDistance)
+                    twist.linear.x = 0.2
+                    twist.angular.z =0
+                    #twist.angular.z = -0.01*(big_sensor - sum(fivePoint)/5)
+                 
+                    #elif twist.angular.z <= -0.1:
+                    if big_sensor >= 290:
+                        twist.linear.x = 0.
+                        twist.angular.z = -big_sensor/280 - 0.002*(big_sensor - averageDis)  - 0.01*abs(big_sensor-sum(fivePoint)/len(fivePoint))
                 else:
                     leftDistance.append(big_sensor)
                     averageDis = sum(leftDistance)/len(leftDistance)
                     twist.linear.x = 0.2
                     twist.angular.z =0
                     #twist.angular.z = -0.01*(big_sensor - sum(fivePoint)/5)
-                    if len(distanceList) == 0:
-                        exit("Error scan right,distanceList used before assignment")
+                 
                     #elif twist.angular.z <= -0.1:
                     if big_sensor >= 290:
-                        twist.linear.x = 0.08
-                        twist.angular.z = -big_sensor/330 - 0.002*(big_sensor - averageDis)  - 0.01*abs(big_sensor-sum(fivePoint)/len(fivePoint))
+                        twist.linear.x = 0.
+                        twist.angular.z = -big_sensor/280 - 0.002*(big_sensor - averageDis)  - 0.01*abs(big_sensor-sum(fivePoint)/len(fivePoint))
                 allSub = sum(rightDistance) -sum(leftDistance)
-                if len(rawTime) > 4:
-                    if allSub > 26500:
-                        print "zzz"
-                        twist.linear.x = 0.05
-                        twist.angular.z = 2.4*allSub/15000
-                    elif -allSub > 26500:
-                        print "zzzz"
-                        twist.linear.x = 0.05
-                        twist.angular.z = 2.4*allSub/15000
-                    else:
-                        pass
+                if sum(sumTopDis) > 30000:
+                    if len(rawTime) > 4:
+                        if allSub > 26500:
+                            print "zuozuozuo"
+                            twist.linear.x = 0.05
+                            twist.angular.z = 2.4*allSub/15000
+                        elif -allSub > 26500:
+                            print "youyouyou"
+                            twist.linear.x = 0.05
+                            twist.angular.z = 2.4*allSub/15000
+                        else:
+                            pass
         else:
             sub = time.time() - rawTime[-1]
             if sub > 0.05:
@@ -179,6 +203,7 @@ def range_controller():
 
 # start the line follow
 if __name__ == '__main__':
+    sumTopDis = [ ]
     counter = 0
     ranges = []
     state = 0
